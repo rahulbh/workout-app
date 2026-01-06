@@ -2,6 +2,9 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var hasSeededDatabase = false
+
     var body: some View {
         TabView {
             HomeView()
@@ -13,6 +16,17 @@ struct ContentView: View {
                 .tabItem {
                     Label("Metrics", systemImage: "chart.bar.xaxis")
                 }
+
+            SettingsView()
+                .tabItem {
+                    Label("Settings", systemImage: "gearshape.fill")
+                }
+        }
+        .onAppear {
+            if !hasSeededDatabase {
+                DatabaseSeeder.seedExercisesIfNeeded(context: modelContext)
+                hasSeededDatabase = true
+            }
         }
     }
 }

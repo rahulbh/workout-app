@@ -5,6 +5,11 @@ import Charts
 struct MetricsView: View {
     @State private var selectedMuscleGroup: String = "All"
     @Query(sort: \WorkoutLog.date) var logs: [WorkoutLog]
+    @Query private var preferences: [UserPreferences]
+
+    private var userPreferences: UserPreferences {
+        preferences.first ?? UserPreferences()
+    }
     
     var muscleGroups: [String] {
         let groups = Set(logs.compactMap { $0.exercise?.targetMuscleGroup })
@@ -87,9 +92,11 @@ struct MetricsView: View {
                                     }
                                     Spacer()
                                     VStack(alignment: .trailing) {
-                                        Text("\(Int(log.calculatedVolume)) lbs")
+                                        let displayVolume = UnitConverter.toDisplay(log.calculatedVolume, unit: userPreferences.preferredWeightUnit)
+                                        let displayWeight = UnitConverter.toDisplay(log.weight, unit: userPreferences.preferredWeightUnit)
+                                        Text("\(Int(displayVolume)) \(userPreferences.preferredWeightUnit.abbreviation)")
                                             .bold()
-                                        Text("\(log.sets) x \(log.reps) @ \(Int(log.weight))")
+                                        Text("\(log.sets) x \(log.reps) @ \(Int(displayWeight))")
                                             .font(.caption)
                                     }
                                 }

@@ -1,0 +1,197 @@
+[
+  {
+    "name": "Barbell Bench Press",
+    "muscleGroup": "Chest",
+    "instructions": "Lie on a flat bench. Lower the bar to your chest, then press it back up. Keep your feet flat on the ground and maintain a slight arch in your lower back."
+  },
+  {
+    "name": "Incline Dumbbell Press",
+    "muscleGroup": "Chest",
+    "instructions": "Set bench to 30-45 degrees. Press dumbbells up from chest level, then lower with control. Keep elbows at 45-degree angle to body."
+  },
+  {
+    "name": "Cable Flyes",
+    "muscleGroup": "Chest",
+    "instructions": "Set cables to chest height. Bring handles together in front of chest, then return with control. Keep slight bend in elbows throughout."
+  },
+  {
+    "name": "Push-Ups",
+    "muscleGroup": "Chest",
+    "instructions": "Start in plank position. Lower chest to ground, keeping body straight. Push back up to start. Keep core tight throughout."
+  },
+  {
+    "name": "Dips",
+    "muscleGroup": "Chest",
+    "instructions": "Grip parallel bars. Lower body until arms at 90 degrees, lean slightly forward for chest emphasis. Push back up to start."
+  },
+  {
+    "name": "Deadlift",
+    "muscleGroup": "Back",
+    "instructions": "Stand with feet hip-width apart, bar over mid-foot. Hinge at hips, grip bar, keep back straight. Drive through heels to stand up, then lower with control."
+  },
+  {
+    "name": "Pull-Ups",
+    "muscleGroup": "Back",
+    "instructions": "Hang from bar with overhand grip. Pull yourself up until chin clears bar. Lower with control. Keep core engaged."
+  },
+  {
+    "name": "Barbell Row",
+    "muscleGroup": "Back",
+    "instructions": "Hinge at hips, back flat. Pull bar to lower chest, squeeze shoulder blades. Lower with control. Keep core tight."
+  },
+  {
+    "name": "Lat Pulldown",
+    "muscleGroup": "Back",
+    "instructions": "Sit at machine, grip bar wider than shoulders. Pull bar to upper chest, squeeze lats. Return with control."
+  },
+  {
+    "name": "Seated Cable Row",
+    "muscleGroup": "Back",
+    "instructions": "Sit at cable machine, feet on platform. Pull handle to lower chest, keep back straight. Return with control."
+  },
+  {
+    "name": "T-Bar Row",
+    "muscleGroup": "Back",
+    "instructions": "Straddle bar, hinge at hips. Pull bar to chest, squeeze back. Lower with control. Keep neutral spine."
+  },
+  {
+    "name": "Barbell Squat",
+    "muscleGroup": "Legs",
+    "instructions": "Bar on upper back. Descend until thighs parallel to ground. Drive through heels to stand. Keep chest up, knees tracking over toes."
+  },
+  {
+    "name": "Romanian Deadlift",
+    "muscleGroup": "Legs",
+    "instructions": "Hold bar at hip level. Hinge at hips, lower bar down shins. Feel stretch in hamstrings. Return to standing."
+  },
+  {
+    "name": "Leg Press",
+    "muscleGroup": "Legs",
+    "instructions": "Sit in machine, feet shoulder-width on platform. Lower until knees at 90 degrees. Press back up, don't lock knees."
+  },
+  {
+    "name": "Walking Lunges",
+    "muscleGroup": "Legs",
+    "instructions": "Step forward, lower until both knees at 90 degrees. Push through front heel to step forward with other leg. Keep torso upright."
+  },
+  {
+    "name": "Leg Curl",
+    "muscleGroup": "Legs",
+    "instructions": "Lie face down on machine. Curl heels toward glutes. Lower with control. Keep hips on pad."
+  },
+  {
+    "name": "Leg Extension",
+    "muscleGroup": "Legs",
+    "instructions": "Sit in machine, ankles under pad. Extend legs until straight. Lower with control. Don't lock knees at top."
+  },
+  {
+    "name": "Calf Raises",
+    "muscleGroup": "Legs",
+    "instructions": "Stand on edge of step. Rise up on toes as high as possible. Lower heels below step level. Hold something for balance."
+  },
+  {
+    "name": "Overhead Press",
+    "muscleGroup": "Shoulders",
+    "instructions": "Stand with bar at shoulder height. Press overhead until arms straight. Lower with control. Keep core tight."
+  },
+  {
+    "name": "Lateral Raises",
+    "muscleGroup": "Shoulders",
+    "instructions": "Hold dumbbells at sides. Raise arms to shoulder height, slight bend in elbows. Lower with control. Don't swing."
+  },
+  {
+    "name": "Face Pulls",
+    "muscleGroup": "Shoulders",
+    "instructions": "Set cable at face height. Pull rope toward face, spreading handles apart. Squeeze shoulder blades. Return with control."
+  },
+  {
+    "name": "Arnold Press",
+    "muscleGroup": "Shoulders",
+    "instructions": "Start with dumbbells at shoulder height, palms facing you. Press up while rotating palms forward. Reverse motion to lower."
+  },
+  {
+    "name": "Front Raises",
+    "muscleGroup": "Shoulders",
+    "instructions": "Hold dumbbells in front of thighs. Raise arms forward to shoulder height. Lower with control. Keep slight bend in elbows."
+  },
+  {
+    "name": "Barbell Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Stand holding bar at hip level. Curl bar to shoulders, keep elbows stationary. Lower with control. Don't swing."
+  },
+  {
+    "name": "Hammer Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Hold dumbbells with palms facing each other. Curl up to shoulders. Lower with control. Keep elbows at sides."
+  },
+  {
+    "name": "Tricep Dips",
+    "muscleGroup": "Arms",
+    "instructions": "Grip bench behind you. Lower body until arms at 90 degrees. Push back up. Keep elbows close to body."
+  },
+  {
+    "name": "Skull Crushers",
+    "muscleGroup": "Arms",
+    "instructions": "Lie on bench, arms straight above chest. Lower bar to forehead by bending elbows. Extend back to start."
+  },
+  {
+    "name": "Cable Tricep Pushdown",
+    "muscleGroup": "Arms",
+    "instructions": "Stand at cable machine, grip bar or rope. Push down until arms straight. Return with control. Keep elbows at sides."
+  },
+  {
+    "name": "Preacher Curl",
+    "muscleGroup": "Arms",
+    "instructions": "Sit at preacher bench, arms extended over pad. Curl weight up to shoulders. Lower with control."
+  },
+  {
+    "name": "Plank",
+    "muscleGroup": "Core",
+    "instructions": "Hold body in straight line on forearms and toes. Keep core tight, don't let hips sag. Hold for time."
+  },
+  {
+    "name": "Russian Twists",
+    "muscleGroup": "Core",
+    "instructions": "Sit with knees bent, lean back slightly. Rotate torso side to side, touching ground beside hips. Keep core engaged."
+  },
+  {
+    "name": "Cable Crunches",
+    "muscleGroup": "Core",
+    "instructions": "Kneel facing cable machine, hold rope behind head. Crunch down, pulling with abs. Return with control."
+  },
+  {
+    "name": "Hanging Leg Raises",
+    "muscleGroup": "Core",
+    "instructions": "Hang from bar. Raise legs until parallel to ground or higher. Lower with control. Keep movement controlled."
+  },
+  {
+    "name": "Ab Wheel Rollout",
+    "muscleGroup": "Core",
+    "instructions": "Start on knees holding wheel. Roll forward, extending body. Pull back to start with abs. Keep back straight."
+  },
+  {
+    "name": "Running",
+    "muscleGroup": "Cardio",
+    "instructions": "Steady-state or interval running. Track distance or time. Maintain good form with relaxed shoulders."
+  },
+  {
+    "name": "Cycling",
+    "muscleGroup": "Cardio",
+    "instructions": "Stationary or outdoor cycling. Adjust resistance as needed. Track distance, time, or calories."
+  },
+  {
+    "name": "Rowing Machine",
+    "muscleGroup": "Cardio",
+    "instructions": "Drive with legs first, then pull with arms. Return by extending arms, then bending knees. Keep back straight."
+  },
+  {
+    "name": "Jump Rope",
+    "muscleGroup": "Cardio",
+    "instructions": "Jump with both feet or alternate. Keep jumps low and controlled. Track time or reps."
+  },
+  {
+    "name": "Burpees",
+    "muscleGroup": "Cardio",
+    "instructions": "Drop to push-up position, perform push-up, jump feet to hands, jump up. Repeat for reps or time."
+  }
+]

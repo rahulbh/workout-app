@@ -8,11 +8,22 @@ struct EditRoutineView: View {
     
     @Query(sort: \Exercise.name) var allExercises: [Exercise]
     @Query var routines: [Routine]
-    
+
     @State private var showingAddExercise = false
+    @State private var searchText = ""
     
     var currentRoutine: Routine? {
         routines.first(where: { $0.dayOfWeek == day })
+    }
+
+    var filteredExercises: [Exercise] {
+        if searchText.isEmpty {
+            return allExercises
+        }
+        return allExercises.filter { exercise in
+            exercise.name.localizedCaseInsensitiveContains(searchText) ||
+            exercise.targetMuscleGroup.localizedCaseInsensitiveContains(searchText)
+        }
     }
     
     var body: some View {
@@ -23,7 +34,7 @@ struct EditRoutineView: View {
                         Text("No exercises created yet. Tap + to add one.")
                             .foregroundColor(.secondary)
                     } else {
-                        ForEach(allExercises) { exercise in
+                        ForEach(filteredExercises) { exercise in
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text(exercise.name)
@@ -51,6 +62,7 @@ struct EditRoutineView: View {
                 }
             }
             .navigationTitle("Edit Routine")
+            .searchable(text: $searchText, prompt: "Search exercises")
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button(action: { showingAddExercise = true }) {

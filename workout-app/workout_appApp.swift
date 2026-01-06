@@ -14,7 +14,8 @@ struct workout_appApp: App {
         let schema = Schema([
             Exercise.self,
             WorkoutLog.self,
-            Routine.self
+            Routine.self,
+            UserPreferences.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
