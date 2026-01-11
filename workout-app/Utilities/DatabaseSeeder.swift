@@ -16,10 +16,10 @@ struct DatabaseSeeder {
         let existingCount = (try? context.fetchCount(descriptor)) ?? 0
 
         // Only seed if database is empty
-        guard (existingCount == 0 || existingCount == 1) else {
-            print("Database already contains \(existingCount) exercises. Skipping seed.")
-            return
-        }
+//        guard (existingCount == 0 || existingCount == 1) else {
+//            print("Database already contains \(existingCount) exercises. Skipping seed.")
+//            return
+//        }
 
         print("Seeding database with pre-loaded exercises...")
 
@@ -34,7 +34,10 @@ struct DatabaseSeeder {
         for exerciseData in exercises {
             let exercise = Exercise(
                 name: exerciseData.name,
-                targetMuscleGroup: exerciseData.muscleGroup
+                targetMuscleGroup: exerciseData.targetMuscleGroup,
+                instructions: exerciseData.instructions,
+                formCues: exerciseData.formCues,
+                videoURL: exerciseData.videoURL
             )
             context.insert(exercise)
             insertedCount += 1
@@ -73,6 +76,8 @@ struct DatabaseSeeder {
 /// Codable struct for decoding exercise data from JSON
 struct ExerciseData: Codable {
     let name: String
-    let muscleGroup: String
+    let targetMuscleGroup: String
     let instructions: String?
+    let formCues: String?
+    let videoURL: String?
 }

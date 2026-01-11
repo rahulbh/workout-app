@@ -2,8 +2,15 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @State private var selectedDay: String = "Monday"
+    @State private var selectedDay: String = HomeView.currentDayOfWeek()
     @State private var showingEditRoutine = false
+
+    /// Returns the current day of week as a string (e.g., "Monday", "Tuesday")
+    private static func currentDayOfWeek() -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "EEEE" // Full day name
+        return formatter.string(from: Date())
+    }
     
     var body: some View {
         NavigationStack {

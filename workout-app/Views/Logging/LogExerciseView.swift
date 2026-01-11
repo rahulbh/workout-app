@@ -13,10 +13,14 @@ struct LogExerciseView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.modelContext) var modelContext
     @Query private var preferences: [UserPreferences]
-    @Query private var allLogs: [WorkoutLog]
+    @Query private var allSetLogs: [SetLog]
+    @Query private var allWorkoutLogs: [WorkoutLog]  // Fallback for migration
 
-    @State private var setEntries: [SetEntry] = [SetEntry(number: 1)]
+    @State private var setEntries: [SetEntry] = []
     @State private var notes: String = ""
+    @State private var hasInitialized = false
+    @State private var cachedPreviousSets: [Int: (weight: Double, reps: Int)] = [:]
+    @State private var showRestTimer = false
 
     private var userPreferences: UserPreferences {
         preferences.first ?? UserPreferences()
@@ -24,18 +28,57 @@ struct LogExerciseView: View {
 
     // Get previous workout data for this exercise
     private var previousSets: [Int: (weight: Double, reps: Int)] {
-        let exerciseLogs = allLogs
+        // First, try to get SetLog data (new format)
+        let exerciseSetLogs = allSetLogs
             .filter { $0.exercise?.id == exercise.id }
             .sorted { $0.date > $1.date }
 
-        guard let lastWorkout = exerciseLogs.first else { return [:] }
+        print("DEBUG: Found \(exerciseSetLogs.count) SetLogs for exercise \(exercise.name)")
 
-        // For now, return the last workout's data for each set
-        // In Phase 2, we'll track individual sets properly
+        if !exerciseSetLogs.isEmpty {
+            // Get the most recent workout timestamp
+            let lastWorkoutDate = exerciseSetLogs.first!.date
+
+            // Find all sets from the same workout session
+            // Sets logged together will have timestamps within a few seconds of each other
+            // Use a 5-minute window to group sets from the same session
+            let sessionWindow: TimeInterval = 5 * 60 // 5 minutes
+
+            let lastWorkoutSets = exerciseSetLogs.filter { setLog in
+                abs(setLog.date.timeIntervalSince(lastWorkoutDate)) < sessionWindow
+            }
+
+            print("DEBUG: Last workout session sets count: \(lastWorkoutSets.count) (within \(sessionWindow)s of \(lastWorkoutDate))")
+
+            // Map set number to weight/reps - since we're sorted by date DESC,
+            // the first occurrence of each set number is the most recent
+            var result: [Int: (weight: Double, reps: Int)] = [:]
+            for setLog in lastWorkoutSets {
+                // Only set if not already set (first occurrence = most recent)
+                if result[setLog.setNumber] == nil {
+                    result[setLog.setNumber] = (weight: setLog.weight, reps: setLog.reps)
+                    print("DEBUG: Mapped setNumber \(setLog.setNumber) -> weight: \(setLog.weight), reps: \(setLog.reps)")
+                }
+            }
+            print("DEBUG: previousSets result: \(result)")
+            return result
+        }
+
+        // Fallback: Check old WorkoutLog format for backward compatibility
+        let exerciseWorkoutLogs = allWorkoutLogs
+            .filter { $0.exercise?.id == exercise.id }
+            .sorted { $0.date > $1.date }
+
+        print("DEBUG: Fallback - Found \(exerciseWorkoutLogs.count) WorkoutLogs")
+
+        guard let lastWorkout = exerciseWorkoutLogs.first else { return [:] }
+
+        // For old WorkoutLog format, replicate the same data for each set
         var result: [Int: (weight: Double, reps: Int)] = [:]
         for i in 1...lastWorkout.sets {
             result[i] = (weight: lastWorkout.weight, reps: lastWorkout.reps)
         }
+        print("DEBUG: WorkoutLog fallback result: \(result)")
         return result
     }
 
@@ -86,7 +129,7 @@ struct LogExerciseView: View {
                     ForEach(setEntries) { entry in
                         SetRowView(
                             entry: entry,
-                            previousData: previousSets[entry.number],
+                            previousData: cachedPreviousSets[entry.number],
                             unit: userPreferences.preferredWeightUnit,
                             onComplete: { completeSet(entry) },
                             onWeightChange: { updateWeight(for: entry, weight: $0) },
@@ -112,6 +155,19 @@ struct LogExerciseView: View {
             }
             .navigationTitle("Log Workout")
             .navigationBarTitleDisplayMode(.inline)
+            .onAppear {
+                print("DEBUG onAppear: allSetLogs.count = \(allSetLogs.count)")
+                initializeSetEntries()
+            }
+            .onChange(of: allSetLogs) { oldValue, newValue in
+                // @Query data may arrive after onAppear, so re-initialize if we haven't yet
+                // and new data has arrived
+                print("DEBUG onChange: oldCount=\(oldValue.count), newCount=\(newValue.count), hasInitialized=\(hasInitialized)")
+                if !hasInitialized || (oldValue.isEmpty && !newValue.isEmpty) {
+                    hasInitialized = false  // Reset to allow re-initialization
+                    initializeSetEntries()
+                }
+            }
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") {
@@ -126,6 +182,44 @@ struct LogExerciseView: View {
                     .disabled(setEntries.filter { $0.isCompleted }.isEmpty)
                 }
             }
+            .sheet(isPresented: $showRestTimer) {
+                RestTimerView(duration: TimeInterval(userPreferences.defaultRestDuration))
+            }
+        }
+    }
+
+    private func initializeSetEntries() {
+        guard !hasInitialized else { return }
+        hasInitialized = true
+
+        // Cache previousSets at initialization time to ensure consistency
+        // between auto-fill values and PREVIOUS column display
+        cachedPreviousSets = previousSets
+
+        print("DEBUG initializeSetEntries: cachedPreviousSets = \(cachedPreviousSets)")
+
+        // If there's previous workout data, auto-populate sets
+        if !cachedPreviousSets.isEmpty {
+            let sortedSetNumbers = cachedPreviousSets.keys.sorted()
+            print("DEBUG: Sorted set numbers: \(sortedSetNumbers)")
+            setEntries = sortedSetNumbers.map { setNumber in
+                let (previousWeight, previousReps) = cachedPreviousSets[setNumber]!
+                let displayWeight = UnitConverter.toDisplay(previousWeight, unit: userPreferences.preferredWeightUnit)
+
+                print("DEBUG: Creating SetEntry #\(setNumber) with weight: \(displayWeight), reps: \(previousReps)")
+
+                // Pre-fill with previous data
+                return SetEntry(
+                    number: setNumber,
+                    weight: displayWeight,
+                    reps: previousReps
+                )
+            }
+            print("DEBUG: Created \(setEntries.count) set entries")
+        } else {
+            // No previous data, start with one empty set
+            print("DEBUG: No previous data, starting with 1 empty set")
+            setEntries = [SetEntry(number: 1)]
         }
     }
 
@@ -148,28 +242,42 @@ struct LogExerciseView: View {
 
     private func completeSet(_ entry: SetEntry) {
         if let index = setEntries.firstIndex(where: { $0.id == entry.id }) {
+            let wasCompleted = setEntries[index].isCompleted
             setEntries[index].isCompleted.toggle()
+
+            // Show rest timer when marking a set as completed (not when uncompleting)
+            if !wasCompleted && userPreferences.enableRestTimer {
+                showRestTimer = true
+            }
         }
     }
 
     private func finishWorkout() {
         let completedSets = setEntries.filter { $0.isCompleted }
-        guard !completedSets.isEmpty else { return }
+        print("DEBUG finishWorkout: \(completedSets.count) completed sets out of \(setEntries.count) total")
 
-        // For now, log each set as a separate WorkoutLog
-        // In Phase 2, we'll use the SetLog model
-        for entry in completedSets {
-            let weightInPounds = UnitConverter.toStorage(entry.weight, from: userPreferences.preferredWeightUnit)
-            let log = WorkoutLog(
-                date: Date(),
-                sets: 1,
-                reps: entry.reps,
-                weight: weightInPounds,
-                exercise: exercise
-            )
-            modelContext.insert(log)
+        guard !completedSets.isEmpty else {
+            print("DEBUG: No completed sets to save!")
+            return
         }
 
+        // Save each completed set as a SetLog
+        let currentDate = Date()
+        for entry in completedSets {
+            let weightInPounds = UnitConverter.toStorage(entry.weight, from: userPreferences.preferredWeightUnit)
+            print("DEBUG: Saving SetLog - setNumber: \(entry.number), reps: \(entry.reps), weight: \(weightInPounds)")
+            let setLog = SetLog(
+                setNumber: entry.number,
+                reps: entry.reps,
+                weight: weightInPounds,
+                notes: entry.notes.isEmpty ? nil : entry.notes,
+                date: currentDate,
+                exercise: exercise
+            )
+            modelContext.insert(setLog)
+        }
+
+        print("DEBUG: Saved \(completedSets.count) SetLogs")
         dismiss()
     }
 }
@@ -180,6 +288,7 @@ struct SetEntry: Identifiable {
     let number: Int
     var weight: Double = 0
     var reps: Int = 0
+    var notes: String = ""
     var isCompleted: Bool = false
 }
 
@@ -206,7 +315,9 @@ struct SetRowView: View {
             // Previous Data
             if let previous = previousData {
                 let displayWeight = UnitConverter.toDisplay(previous.weight, unit: unit)
-                Text("\(Int(displayWeight))\(unit.abbreviation) × \(previous.reps)")
+                let roundedWeight = Int(displayWeight.rounded())
+                let _ = print("DEBUG SetRowView #\(entry.number): previousData.weight=\(previous.weight) (storage), displayWeight=\(displayWeight), roundedWeight=\(roundedWeight), entry.weight=\(entry.weight)")
+                Text("\(roundedWeight)\(unit.abbreviation) × \(previous.reps)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .frame(width: 90, alignment: .leading)
@@ -263,5 +374,5 @@ struct SetRowView: View {
 #Preview {
     let exercise = Exercise(name: "Bench Press", targetMuscleGroup: "Chest")
     LogExerciseView(exercise: exercise)
-        .modelContainer(for: [Exercise.self, WorkoutLog.self, UserPreferences.self], inMemory: true)
+        .modelContainer(for: [Exercise.self, SetLog.self, WorkoutLog.self, UserPreferences.self], inMemory: true)
 }

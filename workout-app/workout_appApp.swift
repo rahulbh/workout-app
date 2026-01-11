@@ -14,6 +14,7 @@ struct workout_appApp: App {
         let schema = Schema([
             Exercise.self,
             WorkoutLog.self,
+            SetLog.self,
             Routine.self,
             UserPreferences.self
         ])
