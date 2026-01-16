@@ -20,7 +20,10 @@ struct LogExerciseView: View {
     @State private var notes: String = ""
     @State private var hasInitialized = false
     @State private var cachedPreviousSets: [Int: (weight: Double, reps: Int)] = [:]
-    @State private var showRestTimer = false
+    @State private var inlineTimerActive = false
+    @State private var skipTimerForAllSets = false
+    @State private var workoutStartTime: Date = Date()
+    @State private var healthKitManager = HealthKitManager()
 
     private var userPreferences: UserPreferences {
         preferences.first ?? UserPreferences()
@@ -84,8 +87,9 @@ struct LogExerciseView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 0) {
+            ZStack(alignment: .bottom) {
+                ScrollView {
+                    VStack(spacing: 0) {
                     // Exercise Header
                     VStack(alignment: .leading, spacing: 12) {
                         HStack {
@@ -100,9 +104,38 @@ struct LogExerciseView: View {
                             .textFieldStyle(.plain)
                             .foregroundStyle(.secondary)
                             .padding(.vertical, 8)
+
+                        // Skip timer toggle (session-only)
+                        if userPreferences.enableRestTimer {
+                            Toggle("Skip rest timer", isOn: $skipTimerForAllSets)
+                                .font(.subheadline)
+                        }
                     }
                     .padding()
                     .background(Color(.systemBackground))
+
+                    // Form Cues Section (collapsible)
+                    if let formCues = exercise.formCues, !formCues.isEmpty {
+                        DisclosureGroup("Form Cues") {
+                            VStack(alignment: .leading, spacing: 8) {
+                                ForEach(formCues.components(separatedBy: "\n"), id: \.self) { cue in
+                                    if !cue.trimmingCharacters(in: .whitespaces).isEmpty {
+                                        HStack(alignment: .top, spacing: 8) {
+                                            Image(systemName: "checkmark.circle.fill")
+                                                .foregroundStyle(.green)
+                                                .font(.caption)
+                                            Text(cue)
+                                                .font(.subheadline)
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.top, 8)
+                        }
+                        .font(.subheadline)
+                        .padding(.horizontal)
+                        .padding(.vertical, 8)
+                    }
 
                     Divider()
 
@@ -151,11 +184,30 @@ struct LogExerciseView: View {
                         .cornerRadius(12)
                     }
                     .padding()
+
+                    // Add bottom padding when timer is active to prevent content overlap
+                    if inlineTimerActive {
+                        Spacer()
+                            .frame(height: 80)
+                    }
+                }
+            }
+
+                // Inline rest timer (fixed at bottom)
+                if inlineTimerActive {
+                    InlineRestTimerView(
+                        duration: TimeInterval(userPreferences.defaultRestDuration),
+                        onComplete: { inlineTimerActive = false },
+                        onSkip: { inlineTimerActive = false }
+                    )
+                    .background(Color(.systemBackground))
+                    .shadow(color: .black.opacity(0.1), radius: 8, y: -2)
                 }
             }
             .navigationTitle("Log Workout")
             .navigationBarTitleDisplayMode(.inline)
             .onAppear {
+                workoutStartTime = Date()
                 print("DEBUG onAppear: allSetLogs.count = \(allSetLogs.count)")
                 initializeSetEntries()
             }
@@ -181,9 +233,6 @@ struct LogExerciseView: View {
                     .bold()
                     .disabled(setEntries.filter { $0.isCompleted }.isEmpty)
                 }
-            }
-            .sheet(isPresented: $showRestTimer) {
-                RestTimerView(duration: TimeInterval(userPreferences.defaultRestDuration))
             }
         }
     }
@@ -245,9 +294,9 @@ struct LogExerciseView: View {
             let wasCompleted = setEntries[index].isCompleted
             setEntries[index].isCompleted.toggle()
 
-            // Show rest timer when marking a set as completed (not when uncompleting)
-            if !wasCompleted && userPreferences.enableRestTimer {
-                showRestTimer = true
+            // Show inline rest timer when marking a set as completed (not when uncompleting)
+            if !wasCompleted && userPreferences.enableRestTimer && !skipTimerForAllSets {
+                inlineTimerActive = true
             }
         }
     }
@@ -278,6 +327,32 @@ struct LogExerciseView: View {
         }
 
         print("DEBUG: Saved \(completedSets.count) SetLogs")
+
+        // Save to Apple Health if enabled
+        if userPreferences.healthKitEnabled && HealthKitManager.isAvailable {
+            Task {
+                // Check authorization status
+                healthKitManager.checkAuthorizationStatus()
+
+                if healthKitManager.isAuthorized {
+                    let workoutEnd = Date()
+                    let durationMinutes = workoutEnd.timeIntervalSince(workoutStartTime) / 60
+                    let calories = HealthKitManager.estimateCalories(durationMinutes: durationMinutes)
+
+                    do {
+                        try await healthKitManager.saveWorkout(
+                            start: workoutStartTime,
+                            end: workoutEnd,
+                            calories: calories
+                        )
+                        print("DEBUG: Saved workout to HealthKit - duration: \(durationMinutes) min, calories: \(calories)")
+                    } catch {
+                        print("DEBUG: Failed to save to HealthKit: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
+
         dismiss()
     }
 }

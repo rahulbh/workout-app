@@ -14,15 +14,18 @@ final class UserPreferences {
     var preferredWeightUnit: WeightUnit
     var enableRestTimer: Bool
     var defaultRestDuration: Int
+    var healthKitEnabled: Bool
 
     init(
         preferredWeightUnit: WeightUnit = .pounds,
         enableRestTimer: Bool = true,
-        defaultRestDuration: Int = 90
+        defaultRestDuration: Int = 90,
+        healthKitEnabled: Bool = false
     ) {
         self.preferredWeightUnit = preferredWeightUnit
         self.enableRestTimer = enableRestTimer
         self.defaultRestDuration = defaultRestDuration
+        self.healthKitEnabled = healthKitEnabled
     }
 }
 

@@ -389,8 +389,10 @@ struct DatabaseSeederTests {
     func testExerciseDataCodable() async throws {
         let exerciseData = ExerciseData(
             name: "Bench Press",
-            muscleGroup: "Chest",
-            instructions: "Lie on bench and press weight up"
+            targetMuscleGroup: "Chest",
+            instructions: "Lie on bench and press weight up",
+            formCues: nil,
+            videoURL: nil
         )
 
         // Test encoding
@@ -402,7 +404,7 @@ struct DatabaseSeederTests {
         let decoded = try decoder.decode(ExerciseData.self, from: data)
 
         #expect(decoded.name == "Bench Press")
-        #expect(decoded.muscleGroup == "Chest")
+        #expect(decoded.targetMuscleGroup == "Chest")
         #expect(decoded.instructions == "Lie on bench and press weight up")
     }
 
@@ -410,8 +412,10 @@ struct DatabaseSeederTests {
     func testExerciseDataNilInstructions() async throws {
         let exerciseData = ExerciseData(
             name: "Squat",
-            muscleGroup: "Legs",
-            instructions: nil
+            targetMuscleGroup: "Legs",
+            instructions: nil,
+            formCues: nil,
+            videoURL: nil
         )
 
         let encoder = JSONEncoder()
@@ -421,7 +425,7 @@ struct DatabaseSeederTests {
         let decoded = try decoder.decode(ExerciseData.self, from: data)
 
         #expect(decoded.name == "Squat")
-        #expect(decoded.muscleGroup == "Legs")
+        #expect(decoded.targetMuscleGroup == "Legs")
         #expect(decoded.instructions == nil)
     }
 
@@ -431,12 +435,12 @@ struct DatabaseSeederTests {
         [
             {
                 "name": "Bench Press",
-                "muscleGroup": "Chest",
+                "targetMuscleGroup": "Chest",
                 "instructions": "Press the weight"
             },
             {
                 "name": "Squat",
-                "muscleGroup": "Legs"
+                "targetMuscleGroup": "Legs"
             }
         ]
         """
@@ -447,10 +451,10 @@ struct DatabaseSeederTests {
 
         #expect(exercises.count == 2)
         #expect(exercises[0].name == "Bench Press")
-        #expect(exercises[0].muscleGroup == "Chest")
+        #expect(exercises[0].targetMuscleGroup == "Chest")
         #expect(exercises[0].instructions != nil)
         #expect(exercises[1].name == "Squat")
-        #expect(exercises[1].muscleGroup == "Legs")
+        #expect(exercises[1].targetMuscleGroup == "Legs")
         #expect(exercises[1].instructions == nil)
     }
 }

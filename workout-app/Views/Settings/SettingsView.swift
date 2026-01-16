@@ -11,6 +11,7 @@ import SwiftData
 struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var preferences: [UserPreferences]
+    @State private var healthKitManager = HealthKitManager()
 
     private var userPreferences: UserPreferences {
         if let existing = preferences.first {
@@ -80,6 +81,55 @@ struct SettingsView: View {
                     Text("Workout")
                 } footer: {
                     Text("Rest timer will automatically start after logging a set.")
+                }
+
+                Section {
+                    if HealthKitManager.isAvailable {
+                        Toggle("Sync to Apple Health", isOn: Binding(
+                            get: { userPreferences.healthKitEnabled },
+                            set: { newValue in
+                                userPreferences.healthKitEnabled = newValue
+                                try? modelContext.save()
+                                if newValue {
+                                    Task {
+                                        await healthKitManager.requestAuthorization()
+                                    }
+                                }
+                            }
+                        ))
+
+                        if userPreferences.healthKitEnabled {
+                            HStack {
+                                Text("Status")
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                if healthKitManager.isAuthorized {
+                                    Label("Connected", systemImage: "checkmark.circle.fill")
+                                        .foregroundStyle(.green)
+                                        .font(.subheadline)
+                                } else {
+                                    Label("Not Connected", systemImage: "exclamationmark.circle")
+                                        .foregroundStyle(.orange)
+                                        .font(.subheadline)
+                                }
+                            }
+                        }
+
+                        if let error = healthKitManager.authorizationError {
+                            Text(error)
+                                .font(.caption)
+                                .foregroundStyle(.red)
+                        }
+                    } else {
+                        Text("Apple Health is not available on this device")
+                            .foregroundStyle(.secondary)
+                    }
+                } header: {
+                    Text("Apple Health")
+                } footer: {
+                    if HealthKitManager.isAvailable {
+                        Text("When enabled, completed workouts will be saved to Apple Health with duration and estimated calories.")
+                    }
                 }
 
                 Section {

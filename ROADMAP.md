@@ -54,70 +54,52 @@ Enhance your SwiftUI workout tracking app with improved workout experience, data
 
 ---
 
-### PHASE 2: Workout Experience Improvements (Week 3-4)
+### PHASE 2: Workout Experience Improvements ✅
 
-#### 2.1 Last Attempt Display 🎯 HIGH PRIORITY ✅ (Has some more improvements pending in Backlog)
-**Time**: 4-5 hours | **Value**: Very High
-
-**New Data Model** (Breaking Change):
+#### 2.1 Last Attempt Display ✅
 - `Models/SetLog.swift` - Track individual sets instead of aggregated workout
-  ```swift
-  @Model final class SetLog {
-      var setNumber: Int
-      var reps: Int
-      var weight: Double
-      var notes: String?
-      var date: Date
-      var exercise: Exercise?
-  }
-  ```
-
-**Modified Files**:
 - `Models/Exercise.swift` - Add SetLog relationship
-- `Views/Logging/LogExerciseView.swift` - **Complete rewrite** for set-by-set logging
-- `workout_appApp.swift` - Update schema to include SetLog
+- `Views/Logging/LogExerciseView.swift` - Complete rewrite for set-by-set logging
+- Auto-populates sets from previous workout
 
-**New Views**:
-- `Views/Logging/SetEntryRow.swift` - Individual set entry with greyscale last attempt
-
-**UI Design**: When entering Set 1, display previous Set 1 data in greyscale (lighter text color)
-
-#### 2.2 Rest Timer
-**Time**: 3-4 hours | **Value**: High
-
-**New Files**:
-- `Views/Logging/RestTimerView.swift` - Circular timer overlay
+#### 2.2 Rest Timer ✅
+- `Views/Logging/RestTimerView.swift` - Circular timer (standalone)
 - `Utilities/TimerManager.swift` - Timer logic with notifications
+- Configurable default rest duration in Settings
 
-**Modified Files**:
-- `Views/Logging/LogExerciseView.swift` - Show timer sheet after set completion
-- `Models/UserPreferences.swift` - Store default rest duration
+#### 2.3 Set Notes ✅
+- Notes field in SetLog model
+- TextField in logging UI
 
-**Features**: Circular progress, skip/done buttons, sound notification
-
-#### 2.3 Set Notes
-**Time**: 1-2 hours | **Value**: Medium
-
-**Implementation**: Already included in SetLog model above - just add TextField in UI
-
-#### 2.4 Exercise Instructions
-**Time**: 3-4 hours | **Value**: Medium
-
-**Modified Files**:
-- `Models/Exercise.swift` - Add `instructions`, `formCues`, `videoURL` fields
-
-**New Views**:
+#### 2.4 Exercise Instructions ✅
+- `Models/Exercise.swift` - `instructions`, `formCues`, `videoURL` fields
 - `Views/Home/ExerciseDetailView.swift` - Full exercise detail screen
-
-**Modified Files**:
-- `Views/Home/ExerciseRowView.swift` - Make tappable to show details
-- `Views/Home/AddExerciseView.swift` - Add instructions field
 
 ---
 
-### PHASE 3: Better Data Visualization (Week 5-6)
+### PHASE 3: Enhanced Workout Logging UX ✅
 
-#### 3.1 Per-Exercise Trend Charts
+#### 3.1 Form Cues in Workout Logging ✅
+- Collapsible form cues section in `LogExerciseView`
+- Shows exercise form tips during workout
+
+#### 3.2 Inline Compact Rest Timer ✅
+- `Views/Logging/InlineRestTimerView.swift` - Compact timer at bottom of screen
+- Replaced modal sheet with inline timer
+- "Skip rest timer" toggle (session-only)
+- Layout: `[1:30] [-15s] [+15s] [Skip]`
+
+#### 3.3 Apple Health Integration ✅
+- `Utilities/HealthKitManager.swift` - HealthKit wrapper
+- `UserPreferences.healthKitEnabled` - Toggle in Settings
+- Auto-saves workouts to Apple Health on completion
+- Tracks: workout duration, estimated calories (~7.5 cal/min)
+
+---
+
+### PHASE 4: Data Visualization (Week 5-6)
+
+#### 4.1 Per-Exercise Trend Charts
 **Time**: 4-5 hours | **Value**: High
 
 **New Views**:
@@ -131,7 +113,7 @@ Enhance your SwiftUI workout tracking app with improved workout experience, data
 **Modified Files**:
 - `Views/Metrics/MetricsView.swift` - Make history items tappable
 
-#### 3.2 Calendar View
+#### 4.2 Calendar View
 **Time**: 5-6 hours | **Value**: Very High
 
 **New Views**:
@@ -144,7 +126,7 @@ Enhance your SwiftUI workout tracking app with improved workout experience, data
 
 **Implementation**: SwiftUI LazyVGrid for calendar layout
 
-#### 3.3 Muscle Group Breakdown
+#### 4.3 Muscle Group Breakdown
 **Time**: 3-4 hours | **Value**: Medium-High
 
 **New Views**:
@@ -157,9 +139,9 @@ Enhance your SwiftUI workout tracking app with improved workout experience, data
 
 ---
 
-### PHASE 4: Advanced Features (Week 7-8)
+### PHASE 5: Advanced Features (Week 7-8)
 
-#### 4.1 Workout Templates
+#### 5.1 Workout Templates
 **Time**: 6-8 hours | **Value**: High
 
 **New Model**:
@@ -175,7 +157,7 @@ Enhance your SwiftUI workout tracking app with improved workout experience, data
 
 **Features**: Save current workout, load to any day, template categories
 
-#### 4.2 Workout Reminders
+#### 5.2 Workout Reminders
 **Time**: 3-4 hours | **Value**: Medium-High
 
 **New Files**:
@@ -187,7 +169,7 @@ Enhance your SwiftUI workout tracking app with improved workout experience, data
 
 **iOS Permissions**: Request notification authorization
 
-#### 4.3 Superset Support (Optional)
+#### 5.3 Superset Support (Optional)
 **Time**: 6-8 hours | **Value**: High | **Complexity**: High
 
 **New Model**:
